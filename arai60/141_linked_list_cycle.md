@@ -197,3 +197,20 @@ set.add({'a': 2})
 - 合ってそう。
   - key:valueでハッシュ値を作ってるぽいけどそれで合ってるのかソースを見に行こうとしたがどうやらCで実装してるぽくて読めなかった
   - https://github.com/ruby/ruby/blob/master/hash.c これかな？
+- slow, fastのアルゴリズムをloop + if で書き直してみた。
+```ruby
+def hasCycle(head)
+    slow = head
+    fast = head
+
+    loop do
+        return false if fast.nil? || fast.next.nil?
+
+        slow = slow.next
+        fast = fast.next.next
+        return true if slow == fast
+    end
+end
+```
+- 「次のノードまで見る→進んでもOKだったのでポインタを動かす→一致してるか判定」の流れで書いたら一発でこれが出てきて自分でビックリした。
+  - slow, fastのアルゴリズム（フロイドの循環検出法と言うらしい）苦手だと思ってたけど思考の流れが整理されてないから分からないだけだったのかと思うなど
