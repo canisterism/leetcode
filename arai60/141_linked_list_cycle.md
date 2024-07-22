@@ -138,7 +138,7 @@ def hasCycle(head)
     current = head
 
     while !current.nil? do
-        has_visited = visited_nodes.add?(current).nil?
+        has_visited = visited_nodes.add?(current.val).nil?
         return true if has_visited
 
         current = current.next
@@ -153,13 +153,21 @@ end
   - このぐらいシュッとしてるなら`visited_nodes.add?(current.val).nil?`の部分については許容できるレベルだと思った
   - 変数名については振り返ってなかったけど、見直してもあんまり改善ポイントが浮かばなかった
   - 1発で3回連続パスした！終わり。
+
+# Step4
+
+レビューを受けて修正する。
+  - >これ、val が unique であるという保証あるんでしたっけ? Set は Object 入れられたと思いますので、そちらのほうが素直では。
+    - https://github.com/canisterism/leetcode/pull/2/files#r1686085757
+  - valはすべてのノードでuniqueでないので、~Hash~ Node自体を詰めないと同じvalが出てくると正しい結果にならない。
+    - 修正するとこうなる
 ```ruby
 def hasCycle(head)
     visited_nodes = Set.new
     current = head
 
     while !current.nil? do
-        has_visited = visited_nodes.add?(current.val).nil?
+        has_visited = visited_nodes.add?(current).nil?
         return true if has_visited
 
         current = current.next
@@ -167,9 +175,6 @@ def hasCycle(head)
     false
 end
 ```
-- 以下Odaさんのレビューを受けた時のログ
-  - valはすべてのノードでuniqueでないので、Hash自体を詰めないと同じvalが出てくると正しい結果にならない。↓
-    - `has_visited = visited_nodes.add?(current.val).nil?`
 - SetにHashを入れた時の等価の判定ってどうなるんだっけ。多分key:valueで見ると思うけど...
   - https://docs.ruby-lang.org/ja/latest/library/set.html
   - >Set は内部記憶として Hash を使うため、集合要素の等価性は Object#eql? と Object#hash を用いて判断されます。
@@ -197,7 +202,11 @@ set.add({'a': 2})
 - 合ってそう。
   - key:valueでハッシュ値を作ってるぽいけどそれで合ってるのかソースを見に行こうとしたがどうやらCで実装してるぽくて読めなかった
   - https://github.com/ruby/ruby/blob/master/hash.c これかな？
-- slow, fastのアルゴリズムをloop + if で書き直してみた。
+
+>loop do + if return に分解してみて欲しいです。
+https://github.com/canisterism/leetcode/pull/2/files#r1685762007
+slow, fastのアルゴリズムをloop + if で書き直してみた。
+
 ```ruby
 def hasCycle(head)
     slow = head
