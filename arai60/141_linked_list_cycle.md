@@ -138,7 +138,7 @@ def hasCycle(head)
     current = head
 
     while !current.nil? do
-        has_visited = visited_nodes.add?(current.val).nil?
+        has_visited = visited_nodes.add?(current).nil?
         return true if has_visited
 
         current = current.next
@@ -153,3 +153,47 @@ end
   - このぐらいシュッとしてるなら`visited_nodes.add?(current.val).nil?`の部分については許容できるレベルだと思った
   - 変数名については振り返ってなかったけど、見直してもあんまり改善ポイントが浮かばなかった
   - 1発で3回連続パスした！終わり。
+```ruby
+def hasCycle(head)
+    visited_nodes = Set.new
+    current = head
+
+    while !current.nil? do
+        has_visited = visited_nodes.add?(current.val).nil?
+        return true if has_visited
+
+        current = current.next
+    end
+    false
+end
+```
+- 以下Odaさんのレビューを受けた時のログ
+  - valはすべてのノードでuniqueでないので、Hash自体を詰めないと同じvalが出てくると正しい結果にならない。↓
+    - `has_visited = visited_nodes.add?(current.val).nil?`
+- SetにHashを入れた時の等価の判定ってどうなるんだっけ。多分key:valueで見ると思うけど...
+  - https://docs.ruby-lang.org/ja/latest/library/set.html
+  - >Set は内部記憶として Hash を使うため、集合要素の等価性は Object#eql? と Object#hash を用いて判断されます。
+```ruby
+{'a': 1}.hash
+=> 575188353908168896
+{'a': 2}.hash
+=> 1910308263874936072
+{'a': 1}.eql?({'a': 2})
+=> false
+{'a': 1}.eql?({'a': 1})
+=> true
+```
+
+```ruby
+set = Set.new
+=> #<Set: {}>
+set.add({'a': 1})
+=> #<Set: {{:a=>1}}>
+set.add({'a': 1})
+=> #<Set: {{:a=>1}}>
+set.add({'a': 2})
+=> #<Set: {{:a=>1}, {:a=>2}}>
+```
+- 合ってそう。
+  - key:valueでハッシュ値を作ってるぽいけどそれで合ってるのかソースを見に行こうとしたがどうやらCで実装してるぽくて読めなかった
+  - https://github.com/ruby/ruby/blob/master/hash.c これかな？
