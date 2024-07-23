@@ -125,3 +125,23 @@ end
 思考ログ：
 - Step2の解き方でシュッと書けたのでこれで終了。
 - 変数名だけnodeに変えた。
+
+# Step4
+
+レビューを受けて修正する。
+- >僕は単にvisitedとしてしまうのが好みです。
+  - 確かに！こっちの方が読みやすい。
+```ruby
+def detectCycle(head)
+    node = head
+    visited = Set.new
+
+    while node do
+        return node if visited.include?(node)
+
+        visited.add(node)
+        node = node.next
+    end
+    nil
+end
+```
