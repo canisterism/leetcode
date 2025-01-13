@@ -119,3 +119,32 @@ def add_two_numbers(l1, l2)
   sentinel.next
 end
 ```
+
+# Step4
+
+- `if !l1.nil?` が冗長なので`if l1`に書き直し
+- ポインタの移動はループの末尾で動かす方が分かりやすいので、if節やめてsumの計算とポインタの移動を別々に行う
+- 「carryがnilでなければ」の条件は`Numeric#nonzero?`でキレイに書ける（0だったらnilを返す）
+
+```ruby
+def add_two_numbers(l1, l2)
+  sentinel = ListNode.new
+  tail = sentinel
+  carry = 0
+
+  while l1 || l2 || carry.nonzero? do
+    sum = carry
+    sum += l1.val if l1
+    sum += l2.val if l2
+
+    carry, digit = sum.divmod(10)
+    tail.next = ListNode.new(digit)
+
+    l1 = l1&.next
+    l2 = l2&.next
+    tail = tail.next
+  end
+
+  sentinel.next
+end
+```
